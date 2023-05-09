@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tm_front/components/palette.dart';
-import 'package:tm_front/models/login_model.dart';
 
 const titleList = ['곡류', '채소류', '생선 및 해물', '견과류', '과일'];
 
 const list = {
-  //TODO: 실제 DB 데이터로 대체
+  //TODO 실제 DB 데이터로 대체
   '곡류': ['보리', '귀리', '호밀', '밀', '메밀', '옥수수', '쌀', '대두'],
   '채소류': ['가지', '녹두', '강낭콩', '브로콜리', '양배추', '당근', '오이', '감자'],
   '생선 및 해물': ['미역', '멸치', '꽃게', '갑오징어', '홍합', '연어', '참치', '새우'],
@@ -19,8 +18,17 @@ const list = {
 };
 
 class ChooseFood extends StatelessWidget {
-  ChooseFood({super.key, required this.formName});
-  final loginData = Get.put(LoginRequestData());
+  const ChooseFood({
+    super.key,
+    required this.dataList,
+    required this.formName,
+  });
+  final List dataList;
+//   final loginData = Get.put(LoginRequestData());
+
+  //TODO loginData부분 sharedPref로 바꾸고, 회원가입창에서
+  // 다음 버튼 눌릴 시 loginData에 저장 후 넘기기
+  // 생년월일, 스크롤로 바꾸기 , 성별, 신장, 체중 업데이트 가능하게
   final String formName;
 
   @override
@@ -58,35 +66,6 @@ class ChooseFood extends StatelessWidget {
     );
   }
 
-//   Widget chooseFood(String formName) {
-//     return Container(
-//       padding: const EdgeInsets.fromLTRB(0, 20, 0, 40),
-//       constraints: const BoxConstraints(maxWidth: 640),
-//       child: Column(
-//         children: [
-//           Text(formName == 'like' ? '좋아하는 음식 선택' : '싫어하는 음식 선택',
-//               style: const TextStyle(
-//                 color: Palette.main,
-//                 fontSize: 20,
-//                 fontWeight: FontWeight.bold,
-//               )),
-//           const SizedBox(height: 10),
-//           Expanded(
-//             flex: 5,
-//             child: ListView.builder(
-//               itemCount: list.length,
-//               itemBuilder: (BuildContext context, int index) {
-//                 return categoryView(list.keys.toList()[index],
-//                     list.values.toList()[index], formName);
-//               },
-//             ),
-//           ),
-//           nextButton(),
-//         ],
-//       ),
-//     );
-//   }
-
   Row nextButton() {
     return Row(
       children: [
@@ -95,7 +74,9 @@ class ChooseFood extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
             height: 70,
             child: TextButton(
-                onPressed: () => Get.back(),
+                onPressed: () {
+                  Get.back(result: dataList);
+                },
                 style: TextButton.styleFrom(
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(40),
@@ -114,7 +95,7 @@ class ChooseFood extends StatelessWidget {
     );
   }
 
-  Widget categoryView(String title, List foodList) {
+  Widget categoryView(String title, List componentList) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -124,14 +105,14 @@ class ChooseFood extends StatelessWidget {
           height: 40,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            itemCount: foodList.length,
+            itemCount: componentList.length,
             itemBuilder: (context, index) {
               if (index == 0) {
                 return Padding(
                     padding: const EdgeInsets.only(left: 20),
-                    child: foodComponent(foodList[index]));
+                    child: foodComponent(componentList[index]));
               }
-              return foodComponent(foodList[index]);
+              return foodComponent(componentList[index]);
             },
           ),
         ),
@@ -155,18 +136,17 @@ class ChooseFood extends StatelessWidget {
   }
 
   Widget foodComponent(String name) {
-    RxBool isSelected =
-        loginData.data[formName].contains(name) ? true.obs : false.obs;
+    RxBool isSelected = dataList.contains(name) ? true.obs : false.obs;
 
     return Obx(() => Container(
           margin: const EdgeInsets.only(right: 10),
           child: TextButton(
-              onPressed: () => {
-                    isSelected.value = !isSelected.value,
-                    isSelected.value
-                        ? loginData.data[formName].add(name)
-                        : loginData.data[formName].remove(name)
-                  },
+              onPressed: () {
+                isSelected.value = !isSelected.value;
+                isSelected.value
+                    ? dataList.add(name)
+                    : dataList.remove(name);
+              },
               style: TextButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 shape: RoundedRectangleBorder(

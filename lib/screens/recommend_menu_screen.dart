@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:tm_front/components/section_bar.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:tm_front/components/textcomponents.dart/inform_texts.dart';
 import 'package:tm_front/models/body_model.dart';
 import 'package:http/http.dart' as http;
 import 'package:tm_front/services/rcmdmenu_service.dart';
@@ -11,15 +12,19 @@ import 'package:tm_front/services/shared_service.dart';
 
 class RecommendMenuScreen extends StatefulWidget {
   const RecommendMenuScreen({super.key});
-  static const userId = "USER0000000020";
 
   @override
   State<RecommendMenuScreen> createState() => _RecommendMenuScreenState();
 }
 
 class _RecommendMenuScreenState extends State<RecommendMenuScreen> {
-  final Future<BodyModel> bodyInfo =
-      RcmdMenuService.getBodyInfo(RecommendMenuScreen.userId);
+  late String userId;
+  late final Future<BodyModel> bodyInfo;
+
+  _fetchUserId() {
+    final storeUserId = GetStorage();
+    return storeUserId.read('userId');
+  }
 
   var selectedMealTime = '아침';
   List<dynamic> menuData = [];
@@ -33,15 +38,19 @@ class _RecommendMenuScreenState extends State<RecommendMenuScreen> {
     } else if (DateTime.now().hour >= 17 || DateTime.now().hour < 4) {
       selectedMealTime = '저녁';
     }
+    userId = _fetchUserId();
+
+    bodyInfo = RcmdMenuService.getBodyInfo(userId);
     changeMealTime(selectedMealTime);
     SharedService.scheduleDailyTask();
+
     super.initState();
   }
 
   void changeMealTime(String time) async {
     setState(() {
       selectedMealTime = time;
-      getMenuData(RecommendMenuScreen.userId, selectedMealTime);
+      getMenuData(userId, selectedMealTime);
     });
   }
 
@@ -91,33 +100,45 @@ class _RecommendMenuScreenState extends State<RecommendMenuScreen> {
             constraints: const BoxConstraints(maxWidth: 640),
             child: Column(
               children: [
-                const SectionBar(),
                 _showInfo(),
-                const SectionBar(),
                 const SizedBox(height: 20),
                 _mealTime(),
                 const SizedBox(height: 20),
                 // MenuTableWidget(meal),
-                FutureBuilder(
-                    future: _fetchMenuData(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return MenuTableWidget(menuData);
-                      } else {
-                        return const CircularProgressIndicator();
-                      }
-                    }),
-                // if (menuData.isNotEmpty) MenuTableWidget(menuData),
-                const Expanded(child: SizedBox()),
-                FutureBuilder(
-                    future: _fetchMenuData(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        return _showTotalKcal(menuData.last['cal']);
-                      } else {
-                        return const CircularProgressIndicator();
-                      }
-                    }),
+                if (menuData.isNotEmpty)
+                  Column(
+                    children: [
+                      FutureBuilder(
+                        future: _fetchMenuData(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            return MenuTableWidget(menuData);
+                          }
+                          return const CircularProgressIndicator();
+                        },
+                      ),
+                      // if (menuData.isNotEmpty) MenuTableWidget(menuData),
+                      const Expanded(child: SizedBox()),
+                      FutureBuilder(
+                        future: _fetchMenuData(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            return _showTotalKcal(menuData.last['cal']);
+                          }
+                          return const CircularProgressIndicator();
+                        },
+                      ),
+                    ],
+                  )
+                else
+                  const Center(
+                      child: Text(
+                    '메뉴정보를 불러올 수 없습니다. \n프로필에서 활동량을 입력해주세요.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  )),
               ],
             ),
           ),
@@ -138,11 +159,20 @@ class _RecommendMenuScreenState extends State<RecommendMenuScreen> {
             ),
             //   decoration: const BoxDecoration(color: Colors.lightBlue),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                profileComponent(
-                  informTexts('권장 열량', '${snapshot.data!.avgCal}Kcal'),
-                  informTexts('섭취 열량', '${snapshot.data!.mealCal}Kcal'),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    InformTexts(
+                      title: '권장 열량',
+                      text: '${snapshot.data!.avgCal} Kcal',
+                    ),
+                    InformTexts(
+                      title: '섭취 열량',
+                      text: '${snapshot.data!.mealCal} Kcal',
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -161,49 +191,6 @@ class _RecommendMenuScreenState extends State<RecommendMenuScreen> {
         ChooseMealWidget("점심", selectedMealTime, changeMealTime),
         ChooseMealWidget("저녁", selectedMealTime, changeMealTime),
       ],
-    );
-  }
-
-  Row profileComponent(first, second) {
-    if (second == null) {
-      return Row(
-        children: [first],
-      );
-    }
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        first,
-        second,
-      ],
-    );
-  }
-
-  Expanded informTexts(String title, dynamic text) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 6),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.indigo.shade400,
-              ),
-            ),
-            Text(
-              "$text",
-              style: const TextStyle(
-                fontSize: 20,
-              ),
-            )
-          ],
-        ),
-      ),
     );
   }
 
@@ -239,7 +226,6 @@ class MenuTableWidget extends StatelessWidget {
     this.menuData, {
     Key? key,
   }) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Container(

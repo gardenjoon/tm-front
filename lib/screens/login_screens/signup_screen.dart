@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:tm_front/components/next_button.dart';
 import 'package:tm_front/components/palette.dart';
 import 'package:tm_front/models/login_model.dart';
 import 'package:tm_front/services/form_validator.dart';
@@ -14,13 +15,13 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   final GlobalKey<FormState> _key = GlobalKey();
-  bool _validate = false;
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
 
   final _loginData = Get.put(LoginRequestData());
   bool _obscureText = true;
+  bool hasLgnId = false;
 
   String? selectValidator(String name, String value) {
     if (name == '이름') {
@@ -49,59 +50,68 @@ class _SignUpScreenState extends State<SignUpScreen> {
           elevation: 0,
         ),
         backgroundColor: Colors.white,
-        body: SafeArea(
-          child: Center(
-            child: Container(
-              constraints: const BoxConstraints(maxWidth: 640),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Form(
-                          key: _key,
-                          child: Column(
-                            children: [
-                              titleWithForm("이름"),
-                              titleWithForm("아이디"),
-                              titleWithForm("비밀번호"),
-                              titleWithForm("비밀번호 확인"),
-                              titleWithForm("이메일"),
-                            ],
-                          ),
-                        ),
-                      ),
+        body: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus();
+          },
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 640),
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Stack(
+              children: [
+                SingleChildScrollView(
+                  child: Form(
+                    key: _key,
+                    child: Column(
+                      children: [
+                        titleWithForm("이름"),
+                        titleWithForm("아이디"),
+                        titleWithForm("비밀번호"),
+                        titleWithForm("비밀번호 확인"),
+                        titleWithForm("이메일"),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 20 / 100,
+                        )
+                      ],
                     ),
-                    SizedBox(
-                      height: 80,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: SizedBox(
-                              height: 60,
-                              child: TextButton(
-                                  onPressed: () => _goNextPage(),
-                                  style: TextButton.styleFrom(
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(40),
-                                    ),
-                                    backgroundColor: Palette.main,
-                                  ),
-                                  child: const Text('다음',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ))),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
+                Positioned(
+                  left: 0,
+                  bottom: 0,
+                  right: 0,
+                  child: NextButton(
+                    title: '다음',
+                    nextPageFunc: _goNextPage,
+                  ),
+                ),
+                // SizedBox(
+                //   height: 120,
+                //   child: Row(
+                //     children: [
+                //       Expanded(
+                //         child: SizedBox(
+                //           height: 60,
+                //           child: TextButton(
+                //               onPressed: _goNextPage,
+                //               style: TextButton.styleFrom(
+                //                 shape: RoundedRectangleBorder(
+                //                   borderRadius: BorderRadius.circular(40),
+                //                 ),
+                //                 backgroundColor: Palette.main,
+                //               ),
+                //               child: const Text('다음',
+                //                   style: TextStyle(
+                //                     color: Colors.white,
+                //                     fontSize: 20,
+                //                     fontWeight: FontWeight.bold,
+                //                   ))),
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
+              ],
             ),
           ),
         ));
@@ -197,7 +207,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
           if (name == '이름') {
             return FormValidator().validateName(value);
           } else if (name == '아이디') {
-            return FormValidator().validateId(value);
+            if (hasLgnId == false) {
+              return FormValidator().validateId(value);
+            }
+            if (hasLgnId == true) {
+              return '동일한 아이디가 존재합니다.';
+            }
+            return null;
           } else if (name == "비밀번호") {
             return FormValidator().validatePassword(value);
           } else if (name.contains('확인')) {
@@ -213,13 +229,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
         },
         onSaved: (String? value) {
           if (name == '이름') {
-            _loginData.data['name'] = value!;
+            _loginData.data['name'] = value;
           } else if (name == '아이디') {
-            _loginData.data['id'] = value!;
+            _loginData.data['id'] = value;
           } else if (name == '비밀번호') {
-            _loginData.data['password'] = value!;
+            _loginData.data['password'] = Login.securePassword(value!);
           } else if (name == '이메일') {
-            _loginData.data['email'] = value!;
+            _loginData.data['email'] = value;
+          }
+        },
+        onChanged: (value) async {
+          if (name == '아이디') {
+            final check = await LoginService.checkId(value);
+            if (check == 'Duplicate') {
+              setState(() => hasLgnId = true);
+            } else if (check == 'Possible') {
+              setState(() => hasLgnId = false);
+            } else if (check == 'error') {
+              if (!mounted) return;
+              showSnackBar(context, 'server');
+            }
           }
         },
       ),
@@ -239,12 +268,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
   _goNextPage() {
     if (_key.currentState!.validate()) {
       _key.currentState!.save();
-      LoginService.signUp();
       Get.toNamed('/basic_inform');
     } else {
-      setState(() {
-        _validate = true;
-      });
+      showSnackBar(context, '필수 정보 (*) 를 반드시 입력해야 합니다.');
     }
   }
 }

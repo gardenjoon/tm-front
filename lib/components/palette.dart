@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:top_snackbar_flutter/custom_snack_bar.dart';
+import 'package:top_snackbar_flutter/top_snack_bar.dart';
 
 class Palette {
   static const Color transparent = Color.fromRGBO(0, 0, 0, 0);
@@ -10,6 +12,7 @@ class Palette {
   static const Color greyMain = Color.fromRGBO(112, 112, 112, 1);
   static const Color greySub = Color.fromARGB(255, 191, 191, 191);
   static const Color greySub2 = Color.fromRGBO(244, 244, 244, 1);
+  static const Color greySub3 = Color.fromARGB(255, 231, 231, 231);
   static const Color red = Color.fromRGBO(230, 84, 84, 1);
   static const Color yellowMain = Color.fromRGBO(255, 204, 72, 1);
   static const Color yellowSub = Color.fromRGBO(255, 217, 118, 1);
@@ -21,7 +24,8 @@ class Palette {
 }
 
 class Assets extends StatelessWidget {
-  const Assets(this.asset, {super.key, this.size = 10, this.color = Palette.black});
+  const Assets(this.asset,
+      {super.key, this.size = 10, this.color = Palette.black});
   final String asset;
   final double size;
   final Color color;
@@ -52,7 +56,8 @@ class Assets extends StatelessWidget {
 
 class TextWidget extends StatelessWidget {
   const TextWidget(
-    this.text, {super.key, 
+    this.text, {
+    super.key,
     this.color = Palette.black,
     required this.size,
     required this.weight,
@@ -132,7 +137,7 @@ class TextFieldWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
-      autofocus: true,
+      //   autofocus: true,
       decoration: InputDecoration(
         filled: true,
         contentPadding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
@@ -180,4 +185,32 @@ BoxDecoration cardDecoration(String image) {
           const ColorFilter.mode(Palette.greyOpacity, BlendMode.darken),
     ),
   );
+}
+
+void showSnackBar(BuildContext context, String text) {
+  if (text == 'server') {
+    text = '서버 에러입니다. 관리자에게 문의하십시오';
+  }
+  showTopSnackBar(
+    Overlay.of(context),
+    CustomSnackBar.error(
+      message: text,
+      textStyle: const TextStyle(fontSize: 22, color: Palette.white),
+    ),
+    dismissType: DismissType.onSwipe,
+  );
+}
+
+OutlineInputBorder inputBorderDesign(Color color) {
+  return OutlineInputBorder(
+    borderRadius: BorderRadius.circular(16),
+    borderSide: BorderSide(
+      width: 1,
+      color: color,
+    ),
+  );
+}
+
+inputDecoration(color, hint, validator, onSaved) {
+
 }
