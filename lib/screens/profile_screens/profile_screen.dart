@@ -2,11 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:tm_front/components/rowlists/columnlist_changable.dart';
-import 'package:tm_front/components/rowlists/rowlist_changable.dart';
 import 'package:tm_front/components/rowlists/rowlist_selectable.dart';
 import 'package:tm_front/components/section_bar.dart';
 import 'package:tm_front/models/login_model.dart';
-import 'package:tm_front/services/shared_service.dart';
+import 'package:tm_front/services/login_service.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -26,7 +25,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   void initState() {
-    _fetchFoodInform();
+    LoginService.fetchFoodInform();
     super.initState();
   }
 
@@ -43,15 +42,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   const SizedBox(height: 20),
                   const ProfileAppBar(),
                   const RowDivider(),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: RowListChangable(
-                      fitnessList: fitnessList,
-                    ),
-                  ),
+                  //   Container(
+                  //     padding: const EdgeInsets.symmetric(horizontal: 20),
+                  //     child: RowListChangable(
+                  //       fitnessList: fitnessList,
+                  //     ),
+                  //   ),
                   const RowDivider(),
                   FutureBuilder(
-                      future: _fetchFoodInform(),
+                      future: LoginService.fetchFoodInform(),
                       builder: ((context, snapshot) {
                         if (snapshot.hasData) {
                           return Padding(
@@ -78,18 +77,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
           ),
         ));
-  }
-
-  Future<dynamic> _fetchFoodInform() async {
-    final componentLists = [
-      await SharedService.loadData('like'),
-      await SharedService.loadData('hate'),
-      await SharedService.loadData('allergy'),
-    ];
-    loginData.data['like'] = componentLists[0];
-    loginData.data['hate'] = componentLists[1];
-    loginData.data['allergy'] = componentLists[2];
-    return loginData;
   }
 }
 

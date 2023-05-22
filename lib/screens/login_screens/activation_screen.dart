@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:tm_front/components/next_button.dart';
 import 'package:tm_front/components/palette.dart';
-import 'package:tm_front/components/textcomponents.dart/picker_button.dart';
 import 'package:tm_front/models/login_model.dart';
 import 'package:tm_front/services/login_service.dart';
 
@@ -28,7 +27,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
       appBar: AppBar(
         foregroundColor: Colors.black,
         backgroundColor: Colors.white,
-        title: const Text("활동량"),
+        title: const Text('활동량'),
         elevation: 0,
       ),
       backgroundColor: Colors.white,
@@ -64,16 +63,16 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
                     ),
                     const SizedBox(height: 20),
                     titleWithPicker(
-                        "1) 평소 일과 관련된 고강도 신체 활동을 얼마나 하십니까?", 'hard'),
+                        '1) 평소 일과 관련된 고강도 신체 활동을 얼마나 하십니까?', 'hard'),
                     const SizedBox(height: 40),
                     titleWithPicker(
-                        "2) 평소 일과 관련된 중강도 신체 활동을 얼마나 하십니까?", 'soft'),
+                        '2) 평소 일과 관련된 중강도 신체 활동을 얼마나 하십니까?', 'soft'),
                     const SizedBox(height: 40),
                     titleWithPickerSingle(
-                        "3) 최근 일주일 동안 적어도 10분이상 걸은 날은 며칠입니까?", 'walk', 'week'),
+                        '3) 최근 일주일 동안 적어도 10분이상 걸은 날은 며칠입니까?', 'walk', 'week'),
                     const SizedBox(height: 40),
                     titleWithPickerSingle(
-                        "4) 하루 동안 걷는 평균 시간은 얼마나 됩니까?", 'walk', 'day'),
+                        '4) 하루 동안 걷는 평균 시간은 얼마나 됩니까?', 'walk', 'day'),
                     SizedBox(
                       height: MediaQuery.of(context).size.height * 20 / 100,
                     )
@@ -96,17 +95,19 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
     );
   }
 
-  _goNextPage() async {
+  Future<void> _goNextPage() async {
     try {
       final result = await LoginService.signUp();
+      print(result);
       final storeUserId = GetStorage();
 
       if (result.contains('exists')) {
         if (!mounted) return;
         showSnackBar(context, '같은 ID의 사용자가 이미 존재합니다.');
       } else if (result != false) {
-        storeUserId.write('userId', result);
-        Get.offAllNamed('home');
+        await storeUserId.write('userId', result);
+        // await Get.offAllNamed('home');
+        await Get.offNamed('home');
       } else {
         if (!mounted) return;
         showSnackBar(context, 'server');
@@ -202,7 +203,7 @@ class _ActivitiesScreenState extends State<ActivitiesScreen> {
     );
   }
 
-  selectNum(hardness) {
+  dynamic selectNum(hardness) {
     if (hardness == 'hard') {
       return _activityData.data['hardTimes'];
     } else if (hardness == 'soft') {

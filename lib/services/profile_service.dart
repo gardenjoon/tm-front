@@ -14,7 +14,7 @@ class ProfileService {
       final response = await http.get(url);
       if (response.statusCode == 200) {
         final profile = jsonDecode(response.body);
-        return ProfileModel.fromJson(profile["data"]);
+        return ProfileModel.fromJson(profile['data']);
       } else {
         throw Error();
       }

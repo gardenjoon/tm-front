@@ -5,7 +5,6 @@ import 'package:get_storage/get_storage.dart';
 import 'package:tm_front/components/textcomponents.dart/inform_texts.dart';
 import 'package:tm_front/models/body_model.dart';
 import 'package:http/http.dart' as http;
-import 'package:tm_front/services/rcmdmenu_service.dart';
 import 'dart:convert';
 
 import 'package:tm_front/services/shared_service.dart';
@@ -21,7 +20,7 @@ class _RecommendMenuScreenState extends State<RecommendMenuScreen> {
   late String userId;
   late final Future<BodyModel> bodyInfo;
 
-  _fetchUserId() {
+  dynamic _fetchUserId() {
     final storeUserId = GetStorage();
     return storeUserId.read('userId');
   }
@@ -29,23 +28,23 @@ class _RecommendMenuScreenState extends State<RecommendMenuScreen> {
   var selectedMealTime = '아침';
   List<dynamic> menuData = [];
 
-  @override
-  void initState() {
-    if (DateTime.now().hour < 10) {
-      selectedMealTime = '아침';
-    } else if (DateTime.now().hour < 17) {
-      selectedMealTime = '점심';
-    } else if (DateTime.now().hour >= 17 || DateTime.now().hour < 4) {
-      selectedMealTime = '저녁';
-    }
-    userId = _fetchUserId();
+//   @override
+//   void initState() {
+//     if (DateTime.now().hour < 10) {
+//       selectedMealTime = '아침';
+//     } else if (DateTime.now().hour < 17) {
+//       selectedMealTime = '점심';
+//     } else if (DateTime.now().hour >= 17 || DateTime.now().hour < 4) {
+//       selectedMealTime = '저녁';
+//     }
+//     userId = _fetchUserId();
 
-    bodyInfo = RcmdMenuService.getBodyInfo(userId);
-    changeMealTime(selectedMealTime);
-    SharedService.scheduleDailyTask();
+//     bodyInfo = RcmdMenuService.getBodyInfo(userId);
+//     changeMealTime(selectedMealTime);
+//     SharedService.scheduleDailyTask();
 
-    super.initState();
-  }
+//     super.initState();
+//   }
 
   void changeMealTime(String time) async {
     setState(() {
@@ -55,7 +54,7 @@ class _RecommendMenuScreenState extends State<RecommendMenuScreen> {
   }
 
   Future<List<dynamic>> _fetchMenuData() async {
-    List<dynamic> menuData = await SharedService.loadData(selectedMealTime);
+    var menuData = await SharedService.loadData(selectedMealTime);
     return menuData;
   }
 
@@ -88,7 +87,7 @@ class _RecommendMenuScreenState extends State<RecommendMenuScreen> {
         foregroundColor: Colors.black,
         backgroundColor: Colors.white,
         title: const Text(
-          "추천음식",
+          '추천음식',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         elevation: 0,
@@ -97,51 +96,52 @@ class _RecommendMenuScreenState extends State<RecommendMenuScreen> {
       body: SafeArea(
         child: Center(
           child: Container(
-            constraints: const BoxConstraints(maxWidth: 640),
-            child: Column(
-              children: [
-                _showInfo(),
-                const SizedBox(height: 20),
-                _mealTime(),
-                const SizedBox(height: 20),
-                // MenuTableWidget(meal),
-                if (menuData.isNotEmpty)
-                  Column(
-                    children: [
-                      FutureBuilder(
-                        future: _fetchMenuData(),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return MenuTableWidget(menuData);
-                          }
-                          return const CircularProgressIndicator();
-                        },
-                      ),
-                      // if (menuData.isNotEmpty) MenuTableWidget(menuData),
-                      const Expanded(child: SizedBox()),
-                      FutureBuilder(
-                        future: _fetchMenuData(),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            return _showTotalKcal(menuData.last['cal']);
-                          }
-                          return const CircularProgressIndicator();
-                        },
-                      ),
-                    ],
-                  )
-                else
-                  const Center(
-                      child: Text(
-                    '메뉴정보를 불러올 수 없습니다. \n프로필에서 활동량을 입력해주세요.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
-                  )),
-              ],
-            ),
-          ),
+              constraints: const BoxConstraints(maxWidth: 640),
+              child: SizedBox()
+              // Column(
+              //   children: [
+              //     _showInfo(),
+              //     const SizedBox(height: 20),
+              //     _mealTime(),
+              //     const SizedBox(height: 20),
+              //     // MenuTableWidget(meal),
+              //     if (menuData.isNotEmpty)
+              //       Column(
+              //         children: [
+              //           FutureBuilder(
+              //             future: _fetchMenuData(),
+              //             builder: (context, snapshot) {
+              //               if (snapshot.hasData) {
+              //                 return MenuTableWidget(menuData);
+              //               }
+              //               return const CircularProgressIndicator();
+              //             },
+              //           ),
+              //           // if (menuData.isNotEmpty) MenuTableWidget(menuData),
+              //           const Expanded(child: SizedBox()),
+              //           FutureBuilder(
+              //             future: _fetchMenuData(),
+              //             builder: (context, snapshot) {
+              //               if (snapshot.hasData) {
+              //                 return _showTotalKcal(menuData.last['cal']);
+              //               }
+              //               return const CircularProgressIndicator();
+              //             },
+              //           ),
+              //         ],
+              //       )
+              //     else
+              //       const Center(
+              //           child: Text(
+              //         '메뉴정보를 불러올 수 없습니다. \n프로필에서 활동량을 입력해주세요.',
+              //         textAlign: TextAlign.center,
+              //         style: TextStyle(
+              //           fontSize: 20,
+              //         ),
+              //       )),
+              //   ],
+              // ),
+              ),
         ),
       ),
     );
@@ -187,9 +187,9 @@ class _RecommendMenuScreenState extends State<RecommendMenuScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        ChooseMealWidget("아침", selectedMealTime, changeMealTime),
-        ChooseMealWidget("점심", selectedMealTime, changeMealTime),
-        ChooseMealWidget("저녁", selectedMealTime, changeMealTime),
+        ChooseMealWidget('아침', selectedMealTime, changeMealTime),
+        ChooseMealWidget('점심', selectedMealTime, changeMealTime),
+        ChooseMealWidget('저녁', selectedMealTime, changeMealTime),
       ],
     );
   }
@@ -205,7 +205,7 @@ class _RecommendMenuScreenState extends State<RecommendMenuScreen> {
             ),
             decoration: BoxDecoration(color: Colors.grey.shade100),
             child: Text(
-              "식사 총 열량 : ${totalCal}Kcal",
+              '식사 총 열량 : ${totalCal}Kcal',
               textAlign: TextAlign.end,
               style: const TextStyle(
                 fontSize: 20,
@@ -282,16 +282,16 @@ class ChooseMealWidget extends StatelessWidget {
               ? Colors.indigo.shade400
               : Colors.grey,
           borderRadius: BorderRadius.only(
-            topRight: mealTime == "저녁"
+            topRight: mealTime == '저녁'
                 ? const Radius.circular(5)
                 : const Radius.circular(0),
-            topLeft: mealTime == "아침"
+            topLeft: mealTime == '아침'
                 ? const Radius.circular(5)
                 : const Radius.circular(0),
-            bottomRight: mealTime == "저녁"
+            bottomRight: mealTime == '저녁'
                 ? const Radius.circular(5)
                 : const Radius.circular(0),
-            bottomLeft: mealTime == "아침"
+            bottomLeft: mealTime == '아침'
                 ? const Radius.circular(5)
                 : const Radius.circular(0),
           ),

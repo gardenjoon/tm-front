@@ -24,7 +24,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
-      initialRoute: "/signin",
+      initialRoute: '/home',
       getPages: [
         GetPage(name: '/home', page: () => const HomeScreen()),
         GetPage(name: '/signin', page: () => const SignInScreen()),

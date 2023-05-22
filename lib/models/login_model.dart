@@ -17,15 +17,15 @@ class LoginRequestData extends GetxController {
     'allergy': [],
   }.obs;
 
-  addData(formName, foodName) {
+  void addData(formName, foodName) {
     data[formName].add(foodName);
   }
 
-  removeData(formName, foodName) {
+  void removeData(formName, foodName) {
     data[formName].remove(foodName);
   }
 
-  updateData(formName, updatedData) {
+  void updateData(formName, updatedData) {
     data[formName] = updatedData;
   }
 }
@@ -51,7 +51,7 @@ class ActivityData extends GetxController {
 }
 
 class Login {
-  static securePassword(String password) {
+  static String securePassword(String password) {
     final key = utf8.encode(password);
     final bytes = utf8.encode(sha256.convert(key).toString());
 
@@ -59,8 +59,8 @@ class Login {
     return hamcSha256.convert(bytes).toString();
   }
 
-  static genderCodeToString(String genderCode) {
-    Map<String, String> genderMap = {'10': '남자', '20': '여자', '30': '임산부'};
+  static dynamic genderCodeToString(String genderCode) {
+    var genderMap = <String, String>{'10': '남자', '20': '여자', '30': '임산부'};
     return genderMap[genderCode];
   }
 }

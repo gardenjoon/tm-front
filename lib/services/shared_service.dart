@@ -5,14 +5,14 @@ import 'package:timezone/timezone.dart' as tz;
 
 class SharedService {
   static void saveData(String name, List<dynamic> data) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String jsonData = jsonEncode(data);
+    var prefs = await SharedPreferences.getInstance();
+    var jsonData = jsonEncode(data);
     await prefs.setString(name, jsonData);
   }
 
   static Future<List<dynamic>> loadData(String name) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? jsonData = prefs.getString(name);
+    var prefs = await SharedPreferences.getInstance();
+    var jsonData = prefs.getString(name);
     if (jsonData != null) {
       return jsonDecode(jsonData);
     } else {
@@ -21,7 +21,7 @@ class SharedService {
   }
 
   static void clearData(String name) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var prefs = await SharedPreferences.getInstance();
     await prefs.remove(name);
   }
 
@@ -32,9 +32,9 @@ class SharedService {
   }
 
   static void executeFunction() {
-    clearData24HPassed("아침");
-    clearData24HPassed("점심");
-    clearData24HPassed("저녁");
+    clearData24HPassed('아침');
+    clearData24HPassed('점심');
+    clearData24HPassed('저녁');
   }
 
   static void scheduleDailyTask() {

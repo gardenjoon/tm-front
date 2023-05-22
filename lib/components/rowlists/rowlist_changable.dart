@@ -76,7 +76,7 @@ class _RowListChangableState extends State<RowListChangable> {
     }
   }
 
-  _sendToServer() async {
+  void _sendToServer() async {
     try {
       final result =
           await ProfileService.updateProfile(getStorage.read('userId'));

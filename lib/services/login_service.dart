@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:get/get.dart';
 import 'package:tm_front/models/login_model.dart';
+import 'package:tm_front/services/shared_service.dart';
 
 class LoginService {
   static const String baseUrl = 'http://data.pknu.ac.kr:7443/api/user';
@@ -73,5 +74,25 @@ class LoginService {
     } catch (e) {
       rethrow;
     }
+  }
+
+  static Future<dynamic> fetchFoodInform({bool? isFirst}) async {
+    if (isFirst == true) {
+      SharedService.clearData('like');
+      SharedService.clearData('hate');
+      SharedService.clearData('allergy');
+    }
+    final loginData = Get.put(LoginRequestData());
+
+    final componentLists = [
+      await SharedService.loadData('like'),
+      await SharedService.loadData('hate'),
+      await SharedService.loadData('allergy'),
+    ];
+
+    loginData.data['like'] = componentLists[0];
+    loginData.data['hate'] = componentLists[1];
+    loginData.data['allergy'] = componentLists[2];
+    return loginData;
   }
 }

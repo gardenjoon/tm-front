@@ -40,16 +40,16 @@ class Assets extends StatelessWidget {
   }
 
   String chooseAsset(String asset) {
-    if (asset == "addFriends") {
-      return "assets/svg/addF.svg";
-    } else if (asset == "bell") {
-      return "assets/svg/bell.svg";
-    } else if (asset == "home") {
-      return "assets/svg/home.svg";
-    } else if (asset == "map") {
-      return "assets/svg/map.svg";
+    if (asset == 'addFriends') {
+      return 'assets/svg/addF.svg';
+    } else if (asset == 'bell') {
+      return 'assets/svg/bell.svg';
+    } else if (asset == 'home') {
+      return 'assets/svg/home.svg';
+    } else if (asset == 'map') {
+      return 'assets/svg/map.svg';
     } else {
-      return "assets/svg/profile.svg";
+      return 'assets/svg/profile.svg';
     }
   }
 }
@@ -89,15 +89,15 @@ class TextWidget extends StatelessWidget {
   }
 
   double fontSize({required String size}) {
-    if (size == "logo") {
+    if (size == 'logo') {
       return 50;
-    } else if (size == "title") {
+    } else if (size == 'title') {
       return 22;
-    } else if (size == "subtitle") {
+    } else if (size == 'subtitle') {
       return 20;
-    } else if (size == "small") {
+    } else if (size == 'small') {
       return 12;
-    } else if (size == "smaller") {
+    } else if (size == 'smaller') {
       return 10;
     } else {
       return 16;
@@ -105,9 +105,9 @@ class TextWidget extends StatelessWidget {
   }
 
   FontWeight fontWeight({String? weight}) {
-    if (weight == "bold") {
+    if (weight == 'bold') {
       return FontWeight.bold;
-    } else if (weight == "semibold") {
+    } else if (weight == 'semibold') {
       return FontWeight.w600;
     } else {
       return FontWeight.normal;
@@ -115,11 +115,11 @@ class TextWidget extends StatelessWidget {
   }
 
   TextAlign textAlign({String? align}) {
-    if (align == "left") {
+    if (align == 'left') {
       return TextAlign.start;
-    } else if (align == "right") {
+    } else if (align == 'right') {
       return TextAlign.end;
-    } else if (align == "justify") {
+    } else if (align == 'justify') {
       return TextAlign.justify;
     } else {
       return TextAlign.center;
@@ -163,7 +163,7 @@ class TextFieldWidget extends StatelessWidget {
   }
 
   InputBorder chooseBorder(String border) {
-    if (border == "none") {
+    if (border == 'none') {
       return InputBorder.none;
     } else {
       return const OutlineInputBorder(
@@ -211,6 +211,4 @@ OutlineInputBorder inputBorderDesign(Color color) {
   );
 }
 
-inputDecoration(color, hint, validator, onSaved) {
-
-}
+inputDecoration(color, hint, validator, onSaved) {}
