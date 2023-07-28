@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 
 class CheckService {
-  static const String baseUrl = 'http://data.pknu.ac.kr:7443/api/check';
+  static const String baseUrl = 'https://data.pknu.ac.kr:7443/api/check';
 
   static Future<dynamic> uploadImg(dynamic img) async {
     final dio = Dio();

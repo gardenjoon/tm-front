@@ -27,7 +27,7 @@ class PickerButton extends StatelessWidget {
         ),
       ),
       onPressed: () => Get.bottomSheet(
-        SizedBox(
+        Container(
           height: 240,
           child: CupertinoPicker(
             scrollController:

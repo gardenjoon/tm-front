@@ -14,7 +14,6 @@ class RectangleButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 40,
-      width: 80,
       child: TextButton(
           onPressed: callback,
           style: TextButton.styleFrom(

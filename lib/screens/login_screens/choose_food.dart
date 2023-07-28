@@ -1,35 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:tm_front/components/palette.dart';
-
-const titleList = ['곡류', '채소류', '생선 및 해물', '견과류', '과일'];
-
-const list = {
-  //TODO 실제 DB 데이터로 대체
-  '곡류': ['보리', '귀리', '호밀', '밀', '메밀', '옥수수', '쌀', '대두'],
-  '채소류': ['가지', '녹두', '강낭콩', '브로콜리', '양배추', '당근', '오이', '감자'],
-  '생선 및 해물': ['미역', '멸치', '꽃게', '갑오징어', '홍합', '연어', '참치', '새우'],
-  '견과류': ['아몬드', '땅콩', '잣', '호두', '마카다미아', '너트', '코코넛'],
-  '과일': ['사과', '바나나', '블루베리', '포도', '자몽', '키위', '레몬', '배', '딸기', '복숭아'],
-  '유제품 및 계란': ['사과', '바나나', '블루베리', '포도', '자몽', '키위', '레몬', '배', '딸기', '복숭아'],
-  '육류': ['사과', '바나나', '블루베리', '포도', '자몽', '키위', '레몬', '배', '딸기', '복숭아'],
-  '허브 및 향신료': ['사과', '바나나', '블루베리', '포도', '자몽', '키위', '레몬', '배', '딸기', '복숭아'],
-  '기타': ['사과', '바나나', '블루베리', '포도', '자몽', '키위', '레몬', '배', '딸기', '복숭아'],
-};
+import 'package:tm_front/controller/user_controller.dart';
+import 'package:tm_front/models/allergy.dart';
 
 class ChooseFood extends StatelessWidget {
   const ChooseFood({
     super.key,
     required this.dataList,
-    required this.formName,
+    required this.title,
   });
   final List dataList;
-//   final loginData = Get.put(LoginRequestData());
 
-  //TODO loginData부분 sharedPref로 바꾸고, 회원가입창에서
-  // 다음 버튼 눌릴 시 loginData에 저장 후 넘기기
-  // 생년월일, 스크롤로 바꾸기 , 성별, 신장, 체중 업데이트 가능하게
-  final String formName;
+  final String title;
 
   @override
   Widget build(BuildContext context) {
@@ -39,24 +22,23 @@ class ChooseFood extends StatelessWidget {
       child: Column(
         children: [
           Text(
-              formName == 'like'
-                  ? '좋아하는 음식 선택'
-                  : formName == 'hate'
-                      ? '싫어하는 음식 선택'
-                      : '알레르기 선택',
-              style: const TextStyle(
-                color: Palette.main,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              )),
+            title,
+            style: const TextStyle(
+              color: Palette.main,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
           const SizedBox(height: 10),
           Expanded(
             flex: 5,
             child: ListView.builder(
-              itemCount: list.length,
+              itemCount: dataList.length,
               itemBuilder: (BuildContext context, int index) {
                 return categoryView(
-                    list.keys.toList()[index], list.values.toList()[index]);
+                  dataList[index].allergy_set_name,
+                  dataList[index].allergy_infos,
+                );
               },
             ),
           ),
@@ -135,31 +117,37 @@ class ChooseFood extends StatelessWidget {
     );
   }
 
-  Widget foodComponent(String name) {
-    RxBool isSelected = dataList.contains(name) ? true.obs : false.obs;
-
-    return Obx(() => Container(
-          margin: const EdgeInsets.only(right: 10),
-          child: TextButton(
-              onPressed: () {
-                isSelected.value = !isSelected.value;
-                isSelected.value
-                    ? dataList.add(name)
-                    : dataList.remove(name);
-              },
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(25),
-                ),
-                backgroundColor:
-                    isSelected.value ? Palette.main : Palette.greySub,
-              ),
-              child: Text(name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                  ))),
-        ));
+  Widget foodComponent(Allergy allergy_item) {
+    final controller = Get.put(UserController());
+    return Obx(
+      () => Container(
+        margin: const EdgeInsets.only(right: 10),
+        child: TextButton(
+          onPressed: () {
+            if (!controller.checkAllergy(allergy_item)) {
+              controller.addAllergy(allergy_item);
+            } else {
+              controller.removeAllergy(allergy_item);
+            }
+          },
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(25),
+            ),
+            backgroundColor: controller.checkAllergy(allergy_item)
+                ? Palette.main
+                : Palette.greySub,
+          ),
+          child: Text(
+            allergy_item.allergy_name!,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

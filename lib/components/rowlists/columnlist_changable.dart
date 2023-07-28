@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:tm_front/components/palette.dart';
-import 'package:tm_front/components/rowlists/rowlist_shared.dart';
+import 'package:tm_front/components/snackBar.dart';
 import 'package:tm_front/components/textcomponents.dart/picker_button.dart';
-import 'package:tm_front/models/login_model.dart';
-import 'package:tm_front/services/profile_service.dart';
+import 'package:tm_front/models/login.dart';
 
 class ColumnListChangable extends StatefulWidget {
   const ColumnListChangable({
@@ -56,13 +54,13 @@ class _ColumnListChangableState extends State<ColumnListChangable> {
 
   _sendToServer() async {
     try {
-      final result =
-          await ProfileService.updateProfile(getStorage.read('userId'));
-      if (result != true) {
-        showSnackBar(context, 'server');
-      }
+      //   final result =
+      //       await UserRepository.updateProfile(getStorage.read('userId'));
+      //   if (result != true) {
+      //     showSnackBar(AlertType.error);
+      //   }
     } catch (e) {
-      showSnackBar(context, 'server');
+      showSnackBar(AlertType.error);
     }
   }
 
@@ -84,7 +82,6 @@ class _ColumnListChangableState extends State<ColumnListChangable> {
   @override
   Widget build(BuildContext context) {
     final userData = getStorage.read('activityData');
-    print(userData);
     return ListView.separated(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -92,10 +89,10 @@ class _ColumnListChangableState extends State<ColumnListChangable> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            RowListTitle(
-                index: index,
-                titleList:
-                    widget.activityList.map((e) => convertTime(e)).toList()),
+            // RowListTitle(
+            //     index: index,
+            //     titleList:
+            //         widget.activityList.map((e) => convertTime(e)).toList()),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

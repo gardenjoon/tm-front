@@ -1,6 +1,8 @@
+import 'package:get/get.dart';
+import 'package:tm_front/controller/user_controller.dart';
+
 class FormValidator {
   static FormValidator? _instance;
-
   factory FormValidator() => _instance ??= FormValidator._();
 
   FormValidator._();
@@ -13,14 +15,19 @@ class FormValidator {
   }
 
   String? validateId(String? value) {
-    var patttern = r'^(?=.*[a-zA-Z])(?=.*\d).{5,}$';
-    var regExp = RegExp(patttern);
-    if (value!.isEmpty) {
-      return '아이디를 입력해주세요';
-    } else if (!regExp.hasMatch(value)) {
-      return '아이디는 영문, 숫자 포함 최소 5글자 이상이어야 합니다';
+    final controller = Get.put(UserController());
+    if (controller.accountDuplicate.value == true) {
+      return '사용할수 없는 아이디입니다';
+    } else {
+      var patttern = r'[a-z0-9]{5,}';
+      var regExp = RegExp(patttern);
+      if (value!.isEmpty) {
+        return '아이디를 입력해주세요';
+      } else if (!regExp.hasMatch(value)) {
+        return '아이디는 영문 소문자, 숫자 포함 최소 5글자 이상이어야 합니다';
+      }
+      return null;
     }
-    return null;
   }
 
   String? validatePassword(String? value) {
@@ -33,6 +40,7 @@ class FormValidator {
     } else if (!regExp.hasMatch(value)) {
       return '비밀번호는 하나 이상의 영문, 숫자가 혼합되어야 합니다';
     }
+
     return null;
   }
 
@@ -43,9 +51,8 @@ class FormValidator {
       return '이메일을 입력해주세요';
     } else if (!regExp.hasMatch(value)) {
       return '유효하지 않은 이메일입니다';
-    } else {
-      return null;
     }
+    return null;
   }
 
   String? validateBasicInform(String? value, name) {

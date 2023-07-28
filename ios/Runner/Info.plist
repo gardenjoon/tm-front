@@ -51,5 +51,11 @@
 	<string>camera</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>photos</string>
+	<key>NMFClientId</key>
+	<string>zzf5p9xs3z</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>식당추천서비스를 사용하기 위해 위치정보를 허용하시겠습니까?</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+    <string>식당추천서비스를 사용하기 위해 위치정보를 항상 허용하시겠습니까?</string>
 </dict>
 </plist>

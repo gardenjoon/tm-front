@@ -1,98 +1,72 @@
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import 'dart:convert';
 
 import 'package:get/get.dart';
-import 'package:tm_front/models/login_model.dart';
-import 'package:tm_front/services/shared_service.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
+import 'package:tm_front/controller/user_controller.dart';
+import 'package:tm_front/models/login.dart';
 
-class LoginService {
-  static const String baseUrl = 'http://data.pknu.ac.kr:7443/api/user';
-
-  static Future<dynamic> checkId(String lgnId) async {
-    try {
-      final url = Uri.parse('$baseUrl/checkLgnId/$lgnId');
-      final response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        final result = jsonDecode(response.body);
-        return result['data']['message'];
-      } else {
-        final result = jsonDecode(response.body);
-        return result['error']['message'];
-      }
-    } catch (e) {
-      rethrow;
-    }
+class LoginRepository {
+  static final LoginRepository _instance = LoginRepository._internal();
+  factory LoginRepository() {
+    return _instance;
   }
+  LoginRepository._internal();
 
-  static Future<dynamic> signUp() async {
+  static const String baseUrl = 'https://data.pknu.ac.kr:7443/api/user';
+
+  Future<String> signIn() async {
+    final dio = Dio(BaseOptions(baseUrl: baseUrl));
     try {
-      final url = Uri.parse('$baseUrl/signup');
-      final loginData = Get.put(LoginRequestData());
-      final activityData = Get.put(ActivityData());
-
-      final response = await http.post(url,
-          headers: {
-            'Content-Type': 'application/json',
+      final controller = Get.put(UserController());
+      final response = await dio.post(
+        '/signIn',
+        data: jsonEncode(
+          {
+            'account': controller.userAccount.value,
+            'password': controller.userPassword.value,
           },
-          body: jsonEncode({
-            'loginData': loginData.data,
-            'activityData': activityData.data,
-          }));
-
+        ),
+      );
       if (response.statusCode == 200) {
-        final result = jsonDecode(response.body);
-        return result['data'];
-      } else {
-        return false;
+        var token = response.data['data'];
+        final payload = JwtDecoder.decode(token);
+        controller.userId.value = payload['id'];
+        final value = json.encode(Login(user_id: payload['id'], token: token));
+        return value;
       }
+      return '';
     } catch (e) {
+      print(e);
       rethrow;
     }
   }
 
-  static Future<dynamic> signIn() async {
+  Future<String> signUp() async {
+    final dio = Dio();
     try {
-      final url = Uri.parse('$baseUrl/signIn');
-      final loginData = Get.put(LoginRequestData());
-
-      final response = await http.post(url,
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: jsonEncode({
-            'id': loginData.data['id'],
-            'password': loginData.data['password'],
-          }));
+      final controller = Get.put(UserController());
+      final response = await dio.post(
+        '$baseUrl/signUp',
+        data: {
+          'profile': controller.userProfile.value,
+          'allergy': controller.selectedAllergy
+              .map((element) => element.toJson())
+              .toList(),
+          'exercise': controller.exerciseData.value.toJson()
+        },
+        options: Options(contentType: Headers.jsonContentType),
+      );
 
       if (response.statusCode == 200) {
-        final result = jsonDecode(response.body);
-        return result['data'];
-      } else {
-        return false;
+        var token = response.data['data'];
+        final payload = JwtDecoder.decode(token);
+        final value = json.encode(Login(user_id: payload['id'], token: token));
+        return value;
       }
+      return '';
     } catch (e) {
       rethrow;
     }
-  }
-
-  static Future<dynamic> fetchFoodInform({bool? isFirst}) async {
-    if (isFirst == true) {
-      SharedService.clearData('like');
-      SharedService.clearData('hate');
-      SharedService.clearData('allergy');
-    }
-    final loginData = Get.put(LoginRequestData());
-
-    final componentLists = [
-      await SharedService.loadData('like'),
-      await SharedService.loadData('hate'),
-      await SharedService.loadData('allergy'),
-    ];
-
-    loginData.data['like'] = componentLists[0];
-    loginData.data['hate'] = componentLists[1];
-    loginData.data['allergy'] = componentLists[2];
-    return loginData;
   }
 }
